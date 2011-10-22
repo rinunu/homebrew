@@ -26,26 +26,29 @@ class Emacs < Formula
   end
 
   def patches
-    p = []
+    p0 = []
+    p1 = []
 
     # Fix for building with Xcode 4; harmless on Xcode 3.x.
     unless ARGV.build_head?
-      p << "http://repo.or.cz/w/emacs.git/commitdiff_plain/c8bba48c5889c4773c62a10f7c3d4383881f11c1"
+      p1 << "http://repo.or.cz/w/emacs.git/commitdiff_plain/c8bba48c5889c4773c62a10f7c3d4383881f11c1"
       # Fix for address randomization on Darwin. Based on:
       #   http://repo.or.cz/w/emacs.git/patch/f2cea124dffac9ca4b8ce1dbb9b746f8e81109a3
-      p << "https://raw.github.com/gist/1098107"
+      p1 << "https://raw.github.com/gist/1098107"
       # Fix for the titlebar issue on Mac OS X 10.7
-      p << "https://raw.github.com/gist/1102744"
+      p1 << "https://raw.github.com/gist/1102744"
       # Fix for Shift key for IME users
-      p << "https://raw.github.com/gist/1212776"
+      # p1 << "https://raw.github.com/gist/1212776"
     end
 
     if ARGV.include? "--cocoa"
       # Fullscreen patch, works against 23.3 and HEAD.
-      p << "https://raw.github.com/gist/1012927"
+      p1 << "https://raw.github.com/gist/1012927"
+
+      p0 << "http://sourceforge.jp/frs/redir.php?m=jaist&f=%2Fmacemacsjp%2F47986%2Finline_patch-23.2-beta3.tar.gz"
     end
 
-    return p
+    return {:p1 => p1, :p0 => p0}
   end
 
   def install
