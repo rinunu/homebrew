@@ -1,27 +1,19 @@
 require 'formula'
 
 class AtlassianPluginSdk < Formula
-  url 'https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/amps/atlassian-plugin-sdk/3.6/atlassian-plugin-sdk-3.6.tar.gz'
   homepage 'https://developer.atlassian.com/display/DOCS/Atlassian+Plugin+SDK+Documentation'
-  md5 '8f1493232c90fd55f30bf5e6216bc884'
+  url 'https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/amps/atlassian-plugin-sdk/3.11/atlassian-plugin-sdk-3.11.tar.gz'
+  md5 '2899bd68f38f2522a73c6f82f821d541'
 
   def install
     # Remove windows files
     rm_f Dir["bin/*.bat"]
 
-    Dir.chdir "apache-maven/maven-docs" do
-      prefix.install %w{ NOTICE.txt LICENSE.txt README.txt }
-    end
-
     # Install jars in libexec to avoid conflicts
     libexec.install Dir['*']
 
     # Symlink binaries
-    bin.mkpath
-    Dir["#{libexec}/bin/*"].each do |f|
-      ln_s f, bin+File.basename(f)
-    end
-
+    bin.install_symlink Dir["#{libexec}/bin/*"]
   end
 
   def caveats
