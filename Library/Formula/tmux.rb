@@ -5,12 +5,12 @@ class Tmux < Formula
   url 'http://sourceforge.net/projects/tmux/files/tmux/tmux-1.6/tmux-1.6.tar.gz'
   sha1 '8756f6bcecb18102b87e5d6f5952ba2541f68ed3'
 
-  head 'https://tmux.svn.sourceforge.net/svnroot/tmux/trunk'
+  head 'git://tmux.git.sourceforge.net/gitroot/tmux/tmux'
 
   depends_on 'pkg-config' => :build
   depends_on 'libevent'
 
-  if ARGV.build_head?
+  if build.head?
     depends_on :automake
     depends_on :libtool
   end
@@ -20,11 +20,11 @@ class Tmux < Formula
   # NOTE: it applies to 1.6 only, and should be removed when 1.7 is out.
   #       (because it has been merged upstream)
   def patches
-   DATA if ARGV.build_stable?
+   DATA if build.stable?
   end
 
   def install
-    system "sh", "autogen.sh" if ARGV.build_head?
+    system "sh", "autogen.sh" if build.head?
 
     ENV.append "LDFLAGS", '-lresolv'
     system "./configure", "--disable-dependency-tracking",
