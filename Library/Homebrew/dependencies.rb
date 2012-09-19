@@ -208,7 +208,7 @@ class X11Dependency < Requirement
 
   def message; <<-EOS.undent
     Unsatisfied dependency: XQuartz #{@min_version}
-    Please install the latest version of XQuartz:
+    Homebrew does not package XQuartz. Installers may be found at:
       https://xquartz.macosforge.org
     EOS
   end
@@ -333,7 +333,8 @@ class XCodeDependency < Requirement
   end
 
   def message; <<-EOS.undent
-    XCode is required to compile this software.
+    A full installation of XCode.app is required to compile this software.
+    Installing just the Command Line Tools is not sufficent.
     EOS
   end
 end
