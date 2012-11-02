@@ -3,17 +3,28 @@ require 'formula'
 class Mongodb < Formula
   homepage 'http://www.mongodb.org/'
 
-  if Hardware.is_64_bit? and not build.build_32_bit?
-    url 'http://fastdl.mongodb.org/osx/mongodb-osx-x86_64-2.2.0.tgz'
-    md5 '5ad0d0b046919118e73976d670dce5e5'
-    version '2.2.0-x86_64'
-  else
-    url 'http://fastdl.mongodb.org/osx/mongodb-osx-i386-2.2.0.tgz'
-    md5 '59a59df34922f3caaa6219ab8ebf05dd'
-    version '2.2.0-i386'
-  end
+  if Hardware.is_64_bit?
+    url 'http://fastdl.mongodb.org/osx/mongodb-osx-x86_64-2.2.1.tgz'
+    sha1 '6fc3054cdc7f7e64b12742f7e8f9df256a3253d9'
+    version '2.2.1-x86_64'
 
-  option '32-bit'
+    devel do
+      url 'http://fastdl.mongodb.org/osx/mongodb-osx-x86_64-2.3.0.tgz'
+      sha1 '816ca175bd31e2ec1eb8b61793b1d1e4a247a5da'
+      version '2.3.0-x86_64'
+    end
+  else
+    onoe <<-EOS-undent
+    === Error! Unable to proceed with installation. ===
+    Pre-built binaries for 32-bit OS X systems are no longer available.
+
+    It's not recommended, but if you do need to run MongoDB on a 32-bit
+    version of OS X you can do so by compiling the server from source.
+
+    For more info about building MongoDB from source code, please visit:
+    http://www.mongodb.org/display/DOCS/Building+for+OS+X
+    EOS
+  end
 
   def install
     # Copy the prebuilt binaries to prefix
@@ -28,13 +39,12 @@ class Mongodb < Formula
 
     # Homebrew: it just works.
     # NOTE plist updated to use prefix/mongodb!
-    mv (sh = bin/'mongod'), prefix
-    sh.write <<-EOS.undent
+    mv bin/'mongod', prefix
+    (bin/'mongod').write <<-EOS.undent
       #!/usr/bin/env ruby
       ARGV << '--config' << '#{etc}/mongod.conf' unless ARGV.include? '--config'
       exec "#{prefix}/mongod", *ARGV
     EOS
-    sh.chmod 0755
 
     # copy the config file to etc if this is the first install.
     etc.install prefix+'mongod.conf' unless File.exists? etc+"mongod.conf"

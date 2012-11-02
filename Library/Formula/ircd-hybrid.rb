@@ -6,7 +6,7 @@ class IrcdHybrid < Formula
   sha1 'a4d7e06517152ea88b064cd9756084372ed831ac'
 
   # ircd-hybrid needs the .la files
-  skip_clean 'lib'
+  skip_clean :la
 
   def install
     # See patch fix 3
@@ -14,7 +14,9 @@ class IrcdHybrid < Formula
 
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
-                          "--localstatedir=#{var}"
+                          "--localstatedir=#{var}",
+                          # there's no config setting for this so set it to something generous
+                          "--with-nicklen=30"
     system "make install"
   end
 
