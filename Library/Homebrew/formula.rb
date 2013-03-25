@@ -259,6 +259,9 @@ class Formula
   def to_s
     name
   end
+  def inspect
+    name
+  end
 
   # Standard parameters for CMake builds.
   # Using Build Type "None" tells cmake to use our CFLAGS,etc. settings.
@@ -302,17 +305,9 @@ class Formula
   class << self
     include Enumerable
   end
-  def self.all
-    opoo "Formula.all is deprecated, simply use Formula.map"
-    map
-  end
 
   def self.installed
     HOMEBREW_CELLAR.children.map{ |rack| factory(rack.basename) rescue nil }.compact
-  end
-
-  def inspect
-    name
   end
 
   def self.aliases
@@ -503,7 +498,8 @@ class Formula
         hsh["installed"] << {
           "version" => keg.basename.to_s,
           "used_options" => tab.used_options.map(&:flag),
-          "built_as_bottle" => tab.built_bottle
+          "built_as_bottle" => tab.built_bottle,
+          "poured_from_bottle" => tab.poured_from_bottle
         }
       end
     end
@@ -677,12 +673,9 @@ private
 
     Checksum::TYPES.each do |cksum|
       class_eval <<-EOS, __FILE__, __LINE__ + 1
-        def #{cksum}(val=nil)
-          unless val.nil?
-            @stable ||= SoftwareSpec.new
-            @stable.#{cksum}(val)
-          end
-          return @stable ? @stable.#{cksum} : @#{cksum}
+        def #{cksum}(val)
+          @stable ||= SoftwareSpec.new
+          @stable.#{cksum}(val)
         end
       EOS
     end
