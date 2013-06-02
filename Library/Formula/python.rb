@@ -1,8 +1,8 @@
 require 'formula'
 
 class Distribute < Formula
-  url 'https://pypi.python.org/packages/source/d/distribute/distribute-0.6.36.tar.gz'
-  sha1 'ab69711e4ea85c84d6710ecadf1d77427539f702'
+  url 'https://pypi.python.org/packages/source/d/distribute/distribute-0.6.40.tar.gz'
+  sha1 '46654be10177014bbb502a4c516627173de67d15'
 end
 
 class Pip < Formula
@@ -12,8 +12,8 @@ end
 
 class Python < Formula
   homepage 'http://www.python.org'
-  url 'http://www.python.org/ftp/python/2.7.4/Python-2.7.4.tar.bz2'
-  sha1 'deb8609d8e356b3388f33b6a4d6526911994e5b1'
+  url 'http://www.python.org/ftp/python/2.7.5/Python-2.7.5.tar.bz2'
+  sha1 '6cfada1a739544a6fa7f2601b500fba02229656b'
 
   option :universal
   option 'quicktest', 'Run `make quicktest` after the build (for devs; may fail)'
@@ -21,9 +21,8 @@ class Python < Formula
   option 'with-brewed-tk', "Use Homebrew's Tk (has optional Cocoa and threads support)"
   option 'with-poll', 'Enable select.poll, which is not fully implemented on OS X (http://bugs.python.org/issue5154)'
 
-  # It seems this is not available yet for 2.7.4 - I commented it out until the upstream issue gets updated --sam
   # --with-dtrace relies on CLT as dtrace hard-codes paths to /usr
-  #option 'with-dtrace', 'Experimental DTrace support (http://bugs.python.org/issue13405)' if MacOS::CLT.installed?
+  option 'with-dtrace', 'Experimental DTrace support (http://bugs.python.org/issue13405)' if MacOS::CLT.installed?
 
   depends_on 'pkg-config' => :build
   depends_on 'readline' => :recommended
@@ -34,7 +33,7 @@ class Python < Formula
 
   def patches
     p = []
-    p << 'https://raw.github.com/gist/3415636/2365dea8dc5415daa0148e98c394345e1191e4aa/pythondtrace-patch.diff' if build.include? 'with-dtrace'
+    p << 'https://gist.github.com/paxswill/5402840/raw/75646d5860685c8be98858288d1772f64d6d5193/pythondtrace-patch.diff' if build.include? 'with-dtrace'
     # Patch to disable the search for Tk.frameworked, since homebrew's Tk is
     # a plain unix build. Remove `-lX11`, too because our Tk is "AquaTk".
     p << DATA if build.include? 'with-brewed-tk'
@@ -164,6 +163,16 @@ class Python < Formula
       install-scripts=#{scripts_folder}
       install-lib=#{site_packages}
     EOF
+
+     # Work-around this bug: http://bugs.python.org/issue18050
+     inreplace "#{prefix}/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py", 'import sys', <<-EOS.undent
+        import sys
+        try:
+            from _sre import MAXREPEAT
+        except ImportError:
+            import _sre
+            _sre.MAXREPEAT = 65535 # this monkey-patches all other places of "from _sre import MAXREPEAT"'
+        EOS
 
     makefile = prefix/'Frameworks/Python.framework/Versions/2.7/lib/python2.7/config/Makefile'
     inreplace makefile do |s|
